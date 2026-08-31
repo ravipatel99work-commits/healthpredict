@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="content card center">
+  <h2>BMI Calculator</h2>
+  <form method="POST" class="grid2">
+    <label>Weight (kg): <input type="number" inputmode="decimal" step="any" name="weight" required></label>
+    <label>Height (cm): <input type="number" inputmode="decimal" step="any" name="height" required></label>
+    <button class="btn" type="submit">Calculate</button>
+  </form>
+
+  {% if result %}
+  <div class="bmi-result">
+    <h3>Your BMI: {{ result.bmi }}</h3>
+    <p>Status: <strong>{{ result.category }}</strong></p>
+    <img src="{{ url_for('static', filename='images/' + result.category|lower + '.png') }}" alt="{{ result.category }}">
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

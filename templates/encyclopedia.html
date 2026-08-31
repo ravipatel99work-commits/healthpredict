@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="content">
+  <h2 class="center">Disease Encyclopedia</h2>
+  <p class="center">Browse through conditions and read more on Wikipedia.</p>
+
+  <div class="cards">
+    <div class="card">
+      <img src="{{ url_for('static', filename='images/dia.jpg') }}" alt="Diabetes">
+      <h3>Diabetes</h3>
+      <a class="btn" href="https://en.wikipedia.org/wiki/Diabetes_mellitus" target="_blank">Read More</a>
+    </div>
+
+    <div class="card">
+      <img src="{{ url_for('static', filename='images/flu.jpeg') }}" alt="Flu">
+      <h3>Flu (Influenza)</h3>
+      <a class="btn" href="https://en.wikipedia.org/wiki/Influenza" target="_blank">Read More</a>
+    </div>
+
+    <div class="card">
+      <img src="{{ url_for('static', filename='images/pnue.jpeg') }}" alt="Pneumonia">
+      <h3>Pneumonia</h3>
+      <a class="btn" href="https://en.wikipedia.org/wiki/Pneumonia" target="_blank">Read More</a>
+    </div>
+
+    <div class="card">
+      <img src="{{ url_for('static', filename='images/heartattack.jpg') }}" alt="Heart Disease">
+      <h3>Heart Disease</h3>
+      <a class="btn" href="https://en.wikipedia.org/wiki/Cardiovascular_disease" target="_blank">Read More</a>
+    </div>
+
+    <div class="card">
+      <img src="{{ url_for('static', filename='images/kidney2.png') }}" alt="Kidney Issues">
+      <h3>Kidney Issues</h3>
+      <a class="btn" href="https://en.wikipedia.org/wiki/Chronic_kidney_disease" target="_blank">Read More</a>
+    </div>
+
+    <div class="card">
+      <img src="{{ url_for('static', filename='images/stroke.jpg') }}" alt="Stroke">
+      <h3>Stroke</h3>
+      <a class="btn" href="https://en.wikipedia.org/wiki/Stroke" target="_blank">Read More</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

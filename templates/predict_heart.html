@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="content card">
+  <h2>Heart Disease Checker</h2>
+  <form method="POST">
+    <div class="grid2">
+      <label>Age<input type="number" inputmode="numeric" pattern="[0-9]*" name="age" required></label>
+      <label>Blood Pressure (mmHg)<input type="number" inputmode="decimal" step="any" name="bp" required></label>
+      <label>Cholesterol (mg/dL)<input type="number" inputmode="decimal" step="any" name="cholesterol"></label>
+      <label>Max Heart Rate<input type="number" inputmode="numeric" pattern="[0-9]*" name="max_heart_rate"></label>
+    </div>
+    <fieldset>
+      <legend>Symptoms</legend>
+      <label><input type="checkbox" name="chest_discomfort"> Chest discomfort</label>
+      <label><input type="checkbox" name="shortness_of_breath"> Shortness of breath</label>
+      <label><input type="checkbox" name="dizziness"> Dizziness</label>
+    </fieldset>
+    <button class="btn" type="submit">Predict</button>
+  </form>
+</section>
+{% endblock %}

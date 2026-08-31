@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="content card">
+  <h2>Stroke Risk Checker</h2>
+  <form method="POST">
+    <div class="grid2">
+      <label>Age<input type="number" inputmode="numeric" pattern="[0-9]*" name="age" required></label>
+    </div>
+    <fieldset>
+      <legend>Symptoms / History</legend>
+      <label><input type="checkbox" name="palpitations"> Palpitations</label>
+      <label><input type="checkbox" name="dizziness"> Dizziness</label>
+      <label><input type="checkbox" name="blurred_vision"> Blurred vision</label>
+      <label><input type="checkbox" name="chest_discomfort"> Chest discomfort</label>
+    </fieldset>
+    <button class="btn" type="submit">Predict</button>
+  </form>
+</section>
+{% endblock %}

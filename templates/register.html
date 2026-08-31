@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="content center">
+  <div class="auth-card">
+    <h2>Register</h2>
+    <form method="POST">
+      <input type="text" name="username" placeholder="Choose Username" required>
+      <input type="password" name="password" placeholder="Choose Password" required>
+      <button type="submit" class="btn">Register</button>
+    </form>
+    <p>Already registered? <a href="{{ url_for('login') }}">Login here</a></p>
+  </div>
+</section>
+
+<style>
+.auth-card {
+  background: #182447;
+  padding: 30px;
+  border-radius: 12px;
+  width: 320px;
+  margin: 40px auto;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.auth-card h2 { margin-bottom: 20px; }
+.auth-card input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 6px;
+  border: none;
+}
+.auth-card button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 6px;
+  background: #3a62ff;
+  color: white;
+  font-weight: bold;
+  border: none;
+}
+.auth-card button:hover { background: #2a4bd8; }
+.auth-card a { color: #3a62ff; text-decoration: none; }
+</style>
+{% endblock %}

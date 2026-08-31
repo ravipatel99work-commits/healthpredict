@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="content center">
+  <h2>Body Map Symptom Selector</h2>
+  <p>Click a region to see possible diseases. Then click a disease to view common fixes (medicine / therapy / lifestyle).</p>
+
+  <div class="svg-bodymap">
+    <!-- Use the natural size of your image: 768 x 1024 -->
+    <svg viewBox="0 0 768 1024" class="bm-svg" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Body map">
+      <!-- Background image -->
+      <image href="{{ url_for('static', filename='images/bodymap.png') }}"
+             x="0" y="0" width="768" height="1024" />
+
+      <!-- Hotspots -->
+      <g class="hotspots" fill="#3a62ff" fill-opacity="0" stroke="none" pointer-events="all">
+        <rect id="head" x="285" y="40"  width="210" height="140" rx="8" data-region="head" />
+        <rect id="chest" x="255" y="170" width="250" height="170" rx="10" data-region="chest" />
+        <rect id="abdomen" x="240" y="350" width="290" height="220" rx="12" data-region="abdomen" />
+        <rect id="legs" x="260" y="580" width="240" height="380" rx="12" data-region="legs" />
+      </g>
+    </svg>
+  </div>
+
+  <div id="disease-list" class="symptoms-card">
+    <h3>Selected Region: <span id="region-name">None</span></h3>
+    <ul id="diseases"></ul>
+  </div>
+
+  <div id="fixes-card" class="symptoms-card" style="display:none;">
+    <h3>Recommended Solution for <span id="disease-name">-</span></h3>
+    <ul id="fixes"></ul>
+  </div>
+</section>
+
+<style>
+  .svg-bodymap { max-width: 440px; margin: 0 auto 18px; }
+  .bm-svg { width: 100%; height: auto; display: block; }
+  .hotspots rect { cursor: pointer; transition: fill-opacity .15s ease; }
+  .hotspots rect:hover { fill-opacity: .18; }
+  .symptoms-card {
+    margin-top: 14px;
+    background:#182447;
+    color:#fff;
+    padding:16px;
+    border-radius:12px;
+  }
+  .symptoms-card ul li {
+    cursor:pointer;
+    padding:4px;
+    transition:background .15s ease;
+  }
+  .symptoms-card ul li:hover {
+    background:rgba(255,255,255,0.1);
+  }
+</style>
+
+<script>
+  // Diseases mapped by region
+  const diseasesByRegion = {
+    head:    ["Migraine", "Parkinson's Disease"],
+    chest:   ["Pneumonia", "Heart Disease", "Flu"],
+    abdomen: ["Chronic Kidney Disease", "Diabetes"],
+    legs:    ["Varicose Veins", "CKD-related Swelling"]
+  };
+
+  // Fixes mapped by disease
+  const fixesByDisease = {
+    "Migraine": ["Pain relievers (Ibuprofen, Acetaminophen)", "Rest in dark room", "Hydration"],
+    "Parkinson's Disease": ["Levodopa medication", "Physiotherapy", "Speech therapy", "Exercise (walking, stretching)"],
+    "Pneumonia": ["Antibiotics (if bacterial)", "Rest & fluids", "Fever reducers (Paracetamol)", "Hospitalization if severe"],
+    "Heart Disease": ["Beta blockers / Statins (doctor prescribed)", "Low-fat diet", "Regular exercise", "Avoid smoking"],
+    "Flu": ["Antiviral meds (Tamiflu)", "Paracetamol for fever", "Hydration & rest"],
+    "Chronic Kidney Disease": ["Control BP & blood sugar", "Dialysis in advanced stage", "Low-salt diet", "Avoid NSAIDs"],
+    "Diabetes": ["Metformin / Insulin (doctor prescribed)", "Regular exercise", "Controlled diet", "Monitor glucose"],
+    "Varicose Veins": ["Compression stockings", "Leg elevation", "Exercise", "Surgery if severe"],
+    "CKD-related Swelling": ["Diuretics (doctor prescribed)", "Low-salt diet", "Dialysis if advanced"]
+  };
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // Click on body region
+    document.querySelectorAll(".hotspots rect").forEach(node => {
+      node.addEventListener("click", () => {
+        const region = node.dataset.region;
+        document.getElementById("region-name").textContent =
+          region.charAt(0).toUpperCase() + region.slice(1);
+
+        // Populate diseases list
+        const list = document.getElementById("diseases");
+        list.innerHTML = "";
+        (diseasesByRegion[region] || []).forEach(disease => {
+          const li = document.createElement("li");
+          li.textContent = disease;
+          li.addEventListener("click", () => showFixes(disease));
+          list.appendChild(li);
+        });
+
+        // Hide fixes card initially
+        document.getElementById("fixes-card").style.display = "none";
+      });
+    });
+  });
+
+  function showFixes(disease) {
+    document.getElementById("disease-name").textContent = disease;
+    const fixesList = document.getElementById("fixes");
+    fixesList.innerHTML = "";
+    (fixesByDisease[disease] || []).forEach(fix => {
+      const li = document.createElement("li");
+      li.textContent = fix;
+      fixesList.appendChild(li);
+    });
+    document.getElementById("fixes-card").style.display = "block";
+  }
+</script>
+{% endblock %}

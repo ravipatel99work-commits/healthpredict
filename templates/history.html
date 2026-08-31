@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="content center">
+  <h2>Prediction History</h2>
+  <canvas id="historyChart" width="600" height="400"></canvas>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('historyChart').getContext('2d');
+const historyData = {{ history|tojson }};
+const labels = historyData.map(h => h.disease);
+const probs = historyData.map(h => (h.prob*100).toFixed(1));
+
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: labels,
+    datasets: [{
+      label: 'Prediction Confidence (%)',
+      data: probs,
+      backgroundColor: '#3a62ff'
+    }]
+  },
+  options: {
+    responsive: true,
+    scales: { y: { beginAtZero: true, max: 100 } }
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="content card">
+  <h2>Result</h2>
+  <p class="badge {{ tag }}">{{ message }}</p>
+  <p class="muted">Top confidence: <strong>{{ prob_percent }}</strong></p>
+  <h3>Top Suggestions</h3>
+  <ol class="results">
+    {% for label, p in top3 %}
+    <li>{{ label }} — {{ "%.1f"|format(p*100) }}%</li>
+    {% endfor %}
+  </ol>
+  <a class="btn" href="{{ url_for('diseases') }}">Check another condition</a>
+</section>
+
+<div class="chart-container">
+  <h3>Probability Distribution (Top 5)</h3>
+  <img src="data:image/png;base64,{{ plot_url }}" alt="Prediction Probabilities">
+</div>
+{% endblock %}

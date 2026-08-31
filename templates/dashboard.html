@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="content">
+  <h2>User Dashboard</h2>
+
+  <!-- Profile card -->
+  <div class="card">
+    <h3>Profile</h3>
+    <p><strong>Name:</strong> Demo User</p>
+    <p><strong>Age:</strong> 25</p>
+    <p><strong>Gender:</strong> Male</p>
+    <p><strong>Registered:</strong> {{ session.get('registered','Guest Mode') }}</p>
+  </div>
+
+  <!-- Prediction History -->
+  <div class="card">
+    <h3>Prediction History</h3>
+    {% if history %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Disease</th>
+          <th>Probability</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for h in history %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ h.disease }}</td>
+          <td>{{ "%.2f"|format(h.prob*100) }}%</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>No predictions yet. Try running a disease check!</p>
+    {% endif %}
+  </div>
+
+  <!-- Trends Graph -->
+  {% if plot_url %}
+  <div class="card graph-card">
+    <h3>Trends</h3>
+    <div class="graph-container">
+      <img src="data:image/png;base64,{{ plot_url }}" alt="History Graph" class="dashboard-graph">
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Quick Tools -->
+  <div class="card">
+    <h3>Quick Tools</h3>
+    <div class="tools">
+      <a href="{{ url_for('bmi') }}" class="btn">BMI Calculator</a>
+      <a href="{{ url_for('bodymap') }}" class="btn">Body Map</a>
+      <a href="{{ url_for('firstaid') }}" class="btn">First Aid</a>
+      <a href="{{ url_for('encyclopedia') }}" class="btn">Disease Encyclopedia</a>
+    </div>
+  </div>
+</section>
+
+<!-- Inline CSS -->
+<style>
+  /* Dashboard Styles */
+  .card {
+    background: #182447;
+    color: white;
+    padding: 20px;
+    margin: 16px 0;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background: #1e2a4a;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .table th,
+  .table td {
+    padding: 10px;
+    border-bottom: 1px solid #444;
+    text-align: left;
+  }
+
+  .table th {
+    background: #2a3b67;
+    color: #f2f2f2;
+  }
+
+  .dashboard-graph {
+    max-width: 100%;
+    height: auto;
+    margin: 20px auto;
+    display: block;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .tools .btn {
+    flex: 1;
+    text-align: center;
+    padding: 12px;
+    border-radius: 6px;
+    background: #3a62ff;
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background 0.3s ease;
+  }
+
+  .tools .btn:hover {
+    background: #2a4bd8;
+  }
+
+  /* Graph container fix */
+  .graph-card {
+    text-align: center;
+  }
+
+  .graph-container {
+    width: 100%;
+    overflow-x: auto;
+    /* prevents cropping */
+    padding: 10px 0;
+  }
+</style>
+{% endblock %}

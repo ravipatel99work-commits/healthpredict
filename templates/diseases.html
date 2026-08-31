@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="content">
+  <h2 class="center">Our Disease Checkers</h2>
+  <div class="cards">
+    {% for c in cards %}
+      <div class="card">
+        <img src="{{ url_for('static', filename=c.img) }}" alt="{{ c.title }}">
+        <h3>{{ c.title }}</h3>
+        <p>{{ c.desc }}</p>
+        <a class="btn" href="{{ url_for('predict_slug', slug=c.slug) }}">Check {{ c.title }}</a>
+      </div>
+    {% endfor %}
+  </div>
+
+  <details class="tips">
+    <summary>Example symptom selections (quick demo)</summary>
+    <ul>
+      <li><strong>Common Cold</strong>: cough, high_fever, headache, runny_nose</li>
+      <li><strong>Diabetes</strong>: fatigue, weight_loss, excessive_hunger, polyuria (frequent_urination)</li>
+      <li><strong>Malaria</strong>: chills, high_fever, sweating, headache, muscle_pain</li>
+    </ul>
+  </details>
+</section>
+{% endblock %}

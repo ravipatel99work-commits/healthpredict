@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .mh-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .mh-card {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .mh-question {
+        margin-bottom: 15px;
+    }
+
+    .mh-question label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #fff;
+        line-height: 1.4;
+    }
+
+    .mh-options {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .mh-option-label {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #ddd;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 8px 12px;
+        border-radius: 6px;
+        transition: 0.3s ease;
+    }
+
+    .mh-option-label:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .mh-result {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        font-weight: bold;
+        text-align: center;
+        display: none;
+    }
+
+    .res-normal {
+        background: rgba(46, 204, 113, 0.2);
+        color: #2ecc71;
+    }
+
+    .res-mild {
+        background: rgba(241, 196, 15, 0.2);
+        color: #f1c40f;
+    }
+
+    .res-moderate {
+        background: rgba(230, 126, 34, 0.2);
+        color: #e67e22;
+    }
+
+    .res-severe {
+        background: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+    }
+
+    .audio-controls {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 15px;
+    }
+
+    .btn-stop {
+        background: #e74c3c !important;
+    }
+
+    .btn-stop:hover {
+        background: #c0392b !important;
+    }
+
+    .btn-play {
+        background: #2ecc71 !important;
+        color: #111 !important;
+    }
+
+    .btn-play:hover {
+        background: #27ae60 !important;
+    }
+
+    .mh-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+</style>
+
+<div class="mh-container">
+    <div class="mh-header fade-in">
+        <h1>Mental Health <span class="highlight">Check-in</span></h1>
+        <p>Take a moment for yourself. Evaluate your anxiety and depression levels securely.</p>
+    </div>
+
+    <!-- Soothing Sounds Section -->
+    <div class="mh-card fade-in center" style="border-left: 4px solid #3a62ff;">
+        <h2>Relaxing Ambience 🎧</h2>
+        <p style="color:#bbb; margin-bottom: 15px;">Listen to some soothing rain sounds while you reflect. It will stop
+            automatically if you leave.</p>
+        <audio id="relaxAudio" loop>
+            <!-- ⬇️ Add your own music here! ⬇️ -->
+            <!-- 1. Create an 'audio' folder inside the 'static' folder. -->
+            <!-- 2. Place a file named 'relax.mp3' inside 'static/audio/'. -->
+            <!-- 3. Uncomment the line below and delete the Google URL line! -->
+            <source src="{{ url_for('static', filename='audio/music_project.mp3') }}" type="audio/mpeg">
+
+            Your browser does not support the audio element.
+        </audio>
+        <div class="audio-controls">
+            <button type="button" class="btn btn-play" onclick="document.getElementById('relaxAudio').play()">▶ Play
+                Music</button>
+            <button type="button" class="btn btn-stop"
+                onclick="document.getElementById('relaxAudio').pause(); document.getElementById('relaxAudio').currentTime = 0;">⏹
+                Stop Music</button>
+        </div>
+    </div>
+
+    <!-- Forms Section -->
+    <form id="mhForm" class="fade-in">
+        <div class="mh-card">
+            <h2>GAD-7 (Anxiety Screening)</h2>
+            <p style="margin-bottom:20px; color:#aaa;">Over the last 2 weeks, how often have you been bothered by the
+                following problems?</p>
+
+            {% set gad_questions = [
+            "Feeling nervous, anxious, or on edge",
+            "Not being able to stop or control worrying",
+            "Worrying too much about different things",
+            "Trouble relaxing",
+            "Being so restless that it is hard to sit still",
+            "Becoming easily annoyed or irritable",
+            "Feeling afraid, as if something awful might happen"
+            ] %}
+
+            {% for i in range(7) %}
+            <div class="mh-question">
+                <label>{{ i+1 }}. {{ gad_questions[i] }}</label>
+                <div class="mh-options">
+                    <label class="mh-option-label"><input type="radio" name="gad{{i}}" value="0" required> Not at
+                        all</label>
+                    <label class="mh-option-label"><input type="radio" name="gad{{i}}" value="1"> Several days</label>
+                    <label class="mh-option-label"><input type="radio" name="gad{{i}}" value="2"> More than half the
+                        days</label>
+                    <label class="mh-option-label"><input type="radio" name="gad{{i}}" value="3"> Nearly every
+                        day</label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="mh-card">
+            <h2>PHQ-9 (Depression Screening)</h2>
+            <p style="margin-bottom:20px; color:#aaa;">Over the last 2 weeks, how often have you been bothered by the
+                following problems?</p>
+
+            {% set phq_questions = [
+            "Little interest or pleasure in doing things",
+            "Feeling down, depressed, or hopeless",
+            "Trouble falling or staying asleep, or sleeping too much",
+            "Feeling tired or having little energy",
+            "Poor appetite or overeating",
+            "Feeling bad about yourself — or that you are a failure or have let yourself or your family down",
+            "Trouble concentrating on things, such as reading the newspaper or watching television",
+            "Moving or speaking so slowly that other people could have noticed? Or the opposite — being so fidgety or
+            restless that you have been moving around a lot more than usual",
+            "Thoughts that you would be better off dead or of hurting yourself in some way"
+            ] %}
+
+            {% for i in range(9) %}
+            <div class="mh-question">
+                <label>{{ i+1 }}. {{ phq_questions[i] }}</label>
+                <div class="mh-options">
+                    <label class="mh-option-label"><input type="radio" name="phq{{i}}" value="0" required> Not at
+                        all</label>
+                    <label class="mh-option-label"><input type="radio" name="phq{{i}}" value="1"> Several days</label>
+                    <label class="mh-option-label"><input type="radio" name="phq{{i}}" value="2"> More than half the
+                        days</label>
+                    <label class="mh-option-label"><input type="radio" name="phq{{i}}" value="3"> Nearly every
+                        day</label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <button type="button" class="btn big" onclick="calculateScore()">Calculate Results</button>
+        </div>
+    </form>
+
+    <div id="resultsSection" class="mh-card fade-in" style="display:none; margin-top: 30px;">
+        <h2 class="center">Assessment Results</h2>
+
+        <div id="gadResult" class="mh-result"></div>
+        <div id="phqResult" class="mh-result"></div>
+
+        <div
+            style="margin-top:20px; padding: 15px; border-left: 4px solid #3a62ff; background: rgba(58, 98, 255, 0.1);">
+            <p><strong>Disclaimer:</strong> This is a screening tool and not a diagnostic instrument. If you are
+                experiencing severe symptoms or having thoughts of self-harm, please reach out to a professional
+                immediately or call emergency services.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calculateScore() {
+        const form = document.getElementById('mhForm');
+        if (!form.checkValidity()) {
+            alert("Please answer all questions before calculating.");
+            return;
+        }
+
+        let gadScore = 0;
+        for (let i = 0; i < 7; i++) {
+            let val = document.querySelector(`input[name="gad${i}"]:checked`).value;
+            gadScore += parseInt(val);
+        }
+
+        let phqScore = 0;
+        for (let i = 0; i < 9; i++) {
+            let val = document.querySelector(`input[name="phq${i}"]:checked`).value;
+            phqScore += parseInt(val);
+        }
+
+        // Display Results
+        document.getElementById('resultsSection').style.display = 'block';
+        document.getElementById('gadResult').style.display = 'block';
+        document.getElementById('phqResult').style.display = 'block';
+
+        const gadRes = document.getElementById('gadResult');
+        if (gadScore <= 4) {
+            gadRes.className = 'mh-result res-normal';
+            gadRes.innerHTML = `GAD-7 Score: ${gadScore}/21 - Minimal Anxiety`;
+        } else if (gadScore <= 9) {
+            gadRes.className = 'mh-result res-mild';
+            gadRes.innerHTML = `GAD-7 Score: ${gadScore}/21 - Mild Anxiety`;
+        } else if (gadScore <= 14) {
+            gadRes.className = 'mh-result res-moderate';
+            gadRes.innerHTML = `GAD-7 Score: ${gadScore}/21 - Moderate Anxiety`;
+        } else {
+            gadRes.className = 'mh-result res-severe';
+            gadRes.innerHTML = `GAD-7 Score: ${gadScore}/21 - Severe Anxiety. Please consider consulting a healthcare professional.`;
+        }
+
+        const phqRes = document.getElementById('phqResult');
+        if (phqScore <= 4) {
+            phqRes.className = 'mh-result res-normal';
+            phqRes.innerHTML = `PHQ-9 Score: ${phqScore}/27 - Minimal Depression`;
+        } else if (phqScore <= 9) {
+            phqRes.className = 'mh-result res-mild';
+            phqRes.innerHTML = `PHQ-9 Score: ${phqScore}/27 - Mild Depression`;
+        } else if (phqScore <= 14) {
+            phqRes.className = 'mh-result res-moderate';
+            phqRes.innerHTML = `PHQ-9 Score: ${phqScore}/27 - Moderate Depression`;
+        } else if (phqScore <= 19) {
+            phqRes.className = 'mh-result res-severe';
+            phqRes.innerHTML = `PHQ-9 Score: ${phqScore}/27 - Moderately Severe Depression. Consider consulting a professional.`;
+        } else {
+            phqRes.className = 'mh-result res-severe';
+            phqRes.innerHTML = `PHQ-9 Score: ${phqScore}/27 - Severe Depression. Please consult a healthcare professional immediately.`;
+        }
+
+        // smooth scroll to results section
+        document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+{% endblock %}

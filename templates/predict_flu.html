@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="content card">
+  <h2>Flu (Influenza) Checker</h2>
+  <form method="POST">
+    <fieldset class="grid3">
+      <label><input type="checkbox" name="high_fever"> High fever</label>
+      <label><input type="checkbox" name="body_ache"> Body ache</label>
+      <label><input type="checkbox" name="chills"> Chills</label>
+      <label><input type="checkbox" name="cough"> Cough</label>
+      <label><input type="checkbox" name="headache"> Headache</label>
+      <label><input type="checkbox" name="fatigue"> Fatigue</label>
+    </fieldset>
+    <button class="btn" type="submit">Predict</button>
+  </form>
+</section>
+{% endblock %}

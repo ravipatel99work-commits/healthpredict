@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="content card">
+  <h2>Diabetes Checker</h2>
+  <form method="POST">
+    <div class="grid2">
+      <label>Age<input type="number" inputmode="numeric" pattern="[0-9]*" name="age" required></label>
+      <label>Glucose (mg/dL)<input type="number" inputmode="decimal" step="any" name="glucose" required></label>
+      <label>Blood Pressure (mmHg)<input type="number" inputmode="decimal" step="any" name="bp" required></label>
+      <label>BMI<input type="number" inputmode="decimal" step="any" name="bmi"></label>
+      <label>Pregnancies<input type="number" inputmode="numeric" pattern="[0-9]*" name="pregnancies"></label>
+    </div>
+    <fieldset>
+      <legend>Related symptoms</legend>
+      <label><input type="checkbox" name="fatigue"> Fatigue</label>
+      <label><input type="checkbox" name="weight_loss"> Weight loss</label>
+      <label><input type="checkbox" name="excessive_hunger"> Excessive hunger</label>
+      <label><input type="checkbox" name="polyuria"> Frequent urination</label>
+    </fieldset>
+    <button class="btn" type="submit">Predict</button>
+  </form>
+</section>
+{% endblock %}

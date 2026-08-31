@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="content card">
+  <h2>About Us</h2>
+  <p><strong>HealthPredict</strong> is a student-built demo that uses machine learning to provide preliminary health risk screening for a few common conditions. This is NOT a diagnosis. Please consult a medical professional for any concerns.</p>
+  <h3>How it works</h3>
+  <ul>
+    <li>We train on a mix of symptom patterns and open datasets (e.g., diabetes, heart disease, Parkinson's).</li>
+    <li>You choose a condition and answer a short form.</li>
+    <li>We return a friendly risk level (No Worry / Moderate / See Doctor) with top-3 likely conditions.</li>
+  </ul>
+</section>
+{% endblock %}

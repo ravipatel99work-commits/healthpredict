@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="content card">
+  <h2>Pneumonia Checker</h2>
+  <form method="POST">
+    <fieldset class="grid3">
+      <label><input type="checkbox" name="high_fever"> High fever</label>
+      <label><input type="checkbox" name="productive_cough"> Productive cough</label>
+      <label><input type="checkbox" name="shortness_of_breath"> Shortness of breath</label>
+      <label><input type="checkbox" name="chest_pain"> Chest pain</label>
+    </fieldset>
+    <button class="btn" type="submit">Predict</button>
+  </form>
+</section>
+{% endblock %}

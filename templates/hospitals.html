@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="hospital-finder">
+    <div class="hospital-header fade-in">
+        <h1>🏥 Nearby Hospital Finder</h1>
+        <p>Find hospitals and clinics near your current location</p>
+    </div>
+
+    <!-- Controls -->
+    <div class="hospital-controls fade-in">
+        <div class="control-group">
+            <label for="radius-select">Search Radius:</label>
+            <select id="radius-select">
+                <option value="2000">2 km</option>
+                <option value="5000" selected>5 km</option>
+                <option value="10000">10 km</option>
+                <option value="20000">20 km</option>
+            </select>
+        </div>
+        <button class="btn" id="refresh-btn" onclick="findHospitals()">🔄 Refresh</button>
+        <span class="hospital-count" id="hospital-count"></span>
+    </div>
+
+    <!-- Status messages -->
+    <div id="status-message" class="status-message">
+        <div class="spinner"></div>
+        <span>Detecting your location...</span>
+    </div>
+
+    <div id="error-message" class="error-message" style="display:none;"></div>
+
+    <!-- Map -->
+    <div id="hospital-map" class="hospital-map fade-in"></div>
+
+    <!-- Hospital list -->
+    <h2 class="hospital-list-title" id="list-title" style="display:none;">Hospitals Near You</h2>
+    <div class="hospital-list" id="hospital-list"></div>
+</section>
+
+<!-- Leaflet CSS & JS from CDN -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    let map, userMarker, hospitalMarkers = [];
+
+    // --- Initialize map ---
+    function initMap(lat, lng) {
+        if (map) map.remove();
+        map = L.map('hospital-map').setView([lat, lng], 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // User marker (blue pulsing)
+        const userIcon = L.divIcon({
+            className: 'user-marker-icon',
+            html: '<div class="user-pulse"></div><div class="user-dot"></div>',
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+        });
+        userMarker = L.marker([lat, lng], { icon: userIcon })
+            .addTo(map)
+            .bindPopup('<b>📍 You are here</b>');
+    }
+
+    // --- Calculate distance (Haversine) ---
+    function getDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    // --- Query Overpass API ---
+    async function fetchHospitals(lat, lng, radius) {
+        const query = `
+      [out:json][timeout:25];
+      (
+        node["amenity"="hospital"](around:${radius},${lat},${lng});
+        way["amenity"="hospital"](around:${radius},${lat},${lng});
+        node["amenity"="clinic"](around:${radius},${lat},${lng});
+        way["amenity"="clinic"](around:${radius},${lat},${lng});
+        node["amenity"="doctors"](around:${radius},${lat},${lng});
+        way["amenity"="doctors"](around:${radius},${lat},${lng});
+      );
+      out center body;
+    `;
+        const url = 'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query);
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Overpass API request failed');
+        return await response.json();
+    }
+
+    // --- Clear old markers ---
+    function clearMarkers() {
+        hospitalMarkers.forEach(m => map.removeLayer(m));
+        hospitalMarkers = [];
+    }
+
+    // --- Show hospitals on map and list ---
+    function displayHospitals(data, userLat, userLng) {
+        clearMarkers();
+        const listEl = document.getElementById('hospital-list');
+        const countEl = document.getElementById('hospital-count');
+        const titleEl = document.getElementById('list-title');
+        listEl.innerHTML = '';
+
+        let hospitals = data.elements.map(el => {
+            const lat = el.lat || (el.center && el.center.lat);
+            const lng = el.lon || (el.center && el.center.lon);
+            if (!lat || !lng) return null;
+
+            const name = (el.tags && el.tags.name) || 'Unnamed Hospital/Clinic';
+            const type = (el.tags && el.tags.amenity) || 'hospital';
+            const phone = (el.tags && el.tags.phone) || (el.tags && el.tags['contact:phone']) || '';
+            const street = (el.tags && el.tags['addr:street']) || '';
+            const city = (el.tags && el.tags['addr:city']) || '';
+            const address = [street, city].filter(Boolean).join(', ') || 'Address not available';
+            const dist = getDistance(userLat, userLng, lat, lng);
+
+            return { lat, lng, name, type, phone, address, dist };
+        }).filter(Boolean);
+
+        // Sort by distance
+        hospitals.sort((a, b) => a.dist - b.dist);
+
+        if (hospitals.length === 0) {
+            listEl.innerHTML = '<div class="no-hospitals">No hospitals found nearby. Try increasing the search radius.</div>';
+            countEl.textContent = '0 hospitals found';
+            titleEl.style.display = 'block';
+            return;
+        }
+
+        countEl.textContent = `${hospitals.length} hospital${hospitals.length !== 1 ? 's' : ''} found`;
+        titleEl.style.display = 'block';
+
+        // Hospital marker icon
+        const hospIcon = L.divIcon({
+            className: 'hospital-marker-icon',
+            html: '🏥',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+
+        hospitals.forEach((h, idx) => {
+            // Map marker
+            const marker = L.marker([h.lat, h.lng], { icon: hospIcon }).addTo(map);
+            marker.bindPopup(`
+        <div style="font-family:system-ui;min-width:180px;">
+          <b style="font-size:14px;">${h.name}</b><br>
+          <span style="color:#666;font-size:12px;">${h.type === 'clinic' ? '🩺 Clinic' : h.type === 'doctors' ? '👨‍⚕️ Doctor' : '🏥 Hospital'}</span><br>
+          <span style="font-size:12px;">📍 ${h.address}</span><br>
+          ${h.phone ? `<span style="font-size:12px;">📞 ${h.phone}</span><br>` : ''}
+          <span style="font-size:12px;">📏 ${h.dist.toFixed(2)} km away</span><br>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${h.lat},${h.lng}" target="_blank" style="color:#3a62ff;font-size:12px;font-weight:600;">Get Directions →</a>
+        </div>
+      `);
+            hospitalMarkers.push(marker);
+
+            // List card
+            const card = document.createElement('div');
+            card.className = 'hospital-card fade-in';
+            card.style.animationDelay = `${idx * 0.05}s`;
+            card.innerHTML = `
+        <div class="hospital-card-header">
+          <span class="hospital-icon">${h.type === 'clinic' ? '🩺' : h.type === 'doctors' ? '👨‍⚕️' : '🏥'}</span>
+          <div>
+            <h3>${h.name}</h3>
+            <span class="hospital-type">${h.type === 'clinic' ? 'Clinic' : h.type === 'doctors' ? 'Doctor' : 'Hospital'}</span>
+          </div>
+        </div>
+        <div class="hospital-card-body">
+          <p>📍 ${h.address}</p>
+          ${h.phone ? `<p>📞 ${h.phone}</p>` : ''}
+          <p class="hospital-dist">📏 <strong>${h.dist.toFixed(2)} km</strong> away</p>
+        </div>
+        <div class="hospital-card-actions">
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${h.lat},${h.lng}" target="_blank" class="btn hospital-dir-btn">🗺️ Get Directions</a>
+          <button class="btn hospital-zoom-btn" onclick="map.setView([${h.lat},${h.lng}],17);hospitalMarkers[${idx}].openPopup();">📌 Show on Map</button>
+        </div>
+      `;
+            listEl.appendChild(card);
+        });
+
+        // Fit map bounds to show all results
+        const group = L.featureGroup([userMarker, ...hospitalMarkers]);
+        map.fitBounds(group.getBounds().pad(0.1));
+    }
+
+    // --- Main function ---
+    async function findHospitals() {
+        const statusEl = document.getElementById('status-message');
+        const errorEl = document.getElementById('error-message');
+        const listEl = document.getElementById('hospital-list');
+        const countEl = document.getElementById('hospital-count');
+
+        statusEl.style.display = 'flex';
+        errorEl.style.display = 'none';
+        listEl.innerHTML = '';
+        countEl.textContent = '';
+
+        if (!navigator.geolocation) {
+            statusEl.style.display = 'none';
+            errorEl.style.display = 'block';
+            errorEl.textContent = '❌ Geolocation is not supported by your browser.';
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+                const { latitude: lat, longitude: lng } = pos.coords;
+                const radius = document.getElementById('radius-select').value;
+
+                statusEl.querySelector('span').textContent = 'Searching for nearby hospitals...';
+                initMap(lat, lng);
+
+                try {
+                    const data = await fetchHospitals(lat, lng, radius);
+                    statusEl.style.display = 'none';
+                    displayHospitals(data, lat, lng);
+                } catch (err) {
+                    statusEl.style.display = 'none';
+                    errorEl.style.display = 'block';
+                    errorEl.textContent = '❌ Failed to fetch hospitals. Please try again.';
+                    console.error(err);
+                }
+            },
+            (err) => {
+                statusEl.style.display = 'none';
+                errorEl.style.display = 'block';
+                if (err.code === 1) {
+                    errorEl.innerHTML = '❌ Location access denied. Please allow location access in your browser settings and refresh.';
+                } else if (err.code === 2) {
+                    errorEl.textContent = '❌ Location unavailable. Please try again.';
+                } else {
+                    errorEl.textContent = '❌ Location request timed out. Please try again.';
+                }
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+        );
+    }
+
+    // Auto-search on load
+    window.addEventListener('load', findHospitals);
+</script>
+
+{% endblock %}

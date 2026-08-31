@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Hero Section -->
+<!-- Hero Section -->
+<section class="hero" style="background-image:url('{{ url_for('static', filename='images/landing.jpg') }}');">
+
+  <!-- 🫧 Floating bubbles -->
+  <div class="hero-bubble"></div>
+  <div class="hero-bubble"></div>
+  <div class="hero-bubble"></div>
+  <div class="hero-bubble"></div>
+  <div class="hero-bubble"></div>
+
+  <div class="hero-inner fade-in">
+    <h1>Welcome to <span class="highlight">HealthPredict</span></h1>
+    <p>Your AI-powered companion for smarter health insights.</p>
+    <a class="btn big" href="{{ url_for('diseases') }}">Start Checking</a>
+  </div>
+</section>
+
+
+<!-- Features Section -->
+<section class="features">
+  <h2 class="center">Why Choose HealthPredict?</h2>
+  <div class="feature-grid">
+    <div class="feature-card fade-in">
+      <img src="{{ url_for('static', filename='images/ai.png') }}" alt="AI">
+      <h3>AI-Powered</h3>
+      <p>Advanced machine learning algorithms analyze your symptoms for accurate risk prediction.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <img src="{{ url_for('static', filename='images/symptoms.png') }}" alt="Symptoms">
+      <h3>Symptom Based</h3>
+      <p>Input your symptoms and get instant health insights with easy-to-read reports.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <img src="{{ url_for('static', filename='images/secure.png') }}" alt="Secure">
+      <h3>Privacy First</h3>
+      <p>Your health data stays safe and private. We never share or store personal information.</p>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works">
+  <h2 class="center">How It Works</h2>
+  <div class="timeline">
+    <div class="step fade-in">
+      <span class="circle">1</span>
+      <p>Enter your symptoms or health data.</p>
+    </div>
+    <div class="step fade-in">
+      <span class="circle">2</span>
+      <p>Our AI analyzes patterns against medical datasets.</p>
+    </div>
+    <div class="step fade-in">
+      <span class="circle">3</span>
+      <p>Receive risk levels and recommendations instantly.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta">
+  <h2>Take control of your health today</h2>
+  <p>Get started with our free AI-powered disease prediction tool.</p>
+  <a class="btn big" href="{{ url_for('diseases') }}">Check My Health</a>
+</section>
+
+{% endblock %}

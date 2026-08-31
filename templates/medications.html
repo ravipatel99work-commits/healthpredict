@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="med-section">
+  <h2 class="med-title">💊 Medication Reminder & Tracker</h2>
+
+  <form method="POST" class="med-form">
+    <input type="text" name="name" placeholder="Medicine name" required>
+    <input type="text" name="dosage" placeholder="Dosage (e.g., 1 tablet)" required>
+    <input type="time" name="time" required>
+    <button type="submit">➕ Add Reminder</button>
+  </form>
+
+  {% if meds %}
+  <table class="med-table">
+    <tr>
+      <th>Medicine</th>
+      <th>Dosage</th>
+      <th>Time</th>
+      <th>Added</th>
+      <th>Action</th>
+    </tr>
+    {% for m in meds %}
+    <tr class="med-row" data-time="{{ m[3] }}" data-name="{{ m[1] }}">
+      <td>{{ m[1] }}</td>
+      <td>{{ m[2] }}</td>
+      <td>{{ m[3] }}</td>
+      <td>{{ m[4] }}</td>
+      <td><a href="/delete_med/{{ m[0] }}" class="del-btn">🗑️</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="empty-msg">No reminders yet. Add one above 👆</p>
+  {% endif %}
+</section>
+
+<style>
+.med-section {
+  background: #1e1e2f;
+  color: #f1f1f1;
+  padding: 25px;
+  border-radius: 16px;
+  max-width: 800px;
+  margin: 30px auto;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  font-family: 'Segoe UI', sans-serif;
+}
+.med-title {
+  text-align: center;
+  color: #9bb1ff;
+  margin-bottom: 15px;
+}
+.med-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.med-form input, .med-form button {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 15px;
+}
+.med-form input {
+  background: #2a2a40;
+  color: #f1f1f1;
+  border: 1px solid #3a3a55;
+}
+.med-form button {
+  background: linear-gradient(135deg, #3a62ff, #2a4bd8);
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+.med-form button:hover {
+  background: linear-gradient(135deg, #4d78ff, #3558d8);
+}
+.med-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: #2a2a40;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.med-table th, .med-table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #3a3a55;
+}
+.med-table th {
+  background: #3a3a55;
+  color: #9bb1ff;
+}
+.med-table tr:hover {
+  background: #38385c;
+}
+.del-btn {
+  text-decoration: none;
+  font-size: 18px;
+}
+.del-btn:hover {
+  color: #ff3a5a;
+}
+.empty-msg {
+  text-align: center;
+  color: #b0b0b0;
+  font-style: italic;
+}
+.med-row.notified {
+  background: #355d35 !important;
+  color: #d1ffd1;
+  transition: background 0.5s ease;
+}
+</style>
+
+<script>
+// ✅ Ask for browser notification permission
+if ("Notification" in window && Notification.permission !== "granted") {
+  Notification.requestPermission();
+}
+
+// ✅ Function to show notification + sound
+function showNotification(title, message) {
+  if (Notification.permission === "granted") {
+    const notif = new Notification(title, {
+      body: message,
+      icon: "https://cdn-icons-png.flaticon.com/512/2966/2966484.png"
+    });
+
+    const audio = new Audio("{{ url_for('static', filename='sound/b.mp3') }}");
+    audio.play();
+  }
+}
+
+// ✅ Check reminders every 30 seconds
+setInterval(() => {
+  const now = new Date();
+  const currentTime = now.toTimeString().slice(0,5); // "HH:MM"
+
+  document.querySelectorAll(".med-row").forEach(row => {
+    const medTime = row.dataset.time;
+    const name = row.dataset.name;
+
+    if (medTime === currentTime && !row.classList.contains("notified")) {
+      showNotification("💊 Medicine Reminder", `Time to take your ${name}!`);
+      row.classList.add("notified");
+      row.style.background = "#3a623a";
+    }
+  });
+}, 30000);
+</script>
+
+{% endblock %}

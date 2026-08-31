@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="content">
+  <h2 class="center">🩺 First Aid Guide</h2>
+  <p class="center">Quick emergency tips before medical help arrives. Click on each card to expand details.</p>
+
+  <div class="firstaid-grid">
+    <!-- CPR -->
+    <div class="firstaid-card">
+      <img src="{{ url_for('static', filename='images/firstaid/cpr.png') }}" alt="CPR" class="firstaid-icon">
+      <h3>CPR (Unconscious / No Breathing)</h3>
+      <details>
+        <summary>Steps</summary>
+        <ol>
+          <li>Check responsiveness & breathing.</li>
+          <li>Call emergency services immediately.</li>
+          <li>Place heel of hand on chest center, push hard & fast (100–120/min).</li>
+          <li>Give 2 rescue breaths after every 30 compressions.</li>
+        </ol>
+        <p class="emergency">🚨 Call 911 immediately if no response after 1 cycle.</p>
+      </details>
+    </div>
+
+    <!-- Bleeding -->
+    <div class="firstaid-card">
+      <img src="{{ url_for('static', filename='images/firstaid/bleeding.png') }}" alt="Bleeding" class="firstaid-icon">
+      <h3>Severe Bleeding</h3>
+      <details>
+        <summary>Steps</summary>
+        <ol>
+          <li>Apply firm, direct pressure with a clean cloth.</li>
+          <li>Do not remove cloth if soaked — add more layers.</li>
+          <li>Elevate injured area above heart level if possible.</li>
+        </ol>
+        <p class="emergency">🚨 Seek immediate care if bleeding doesn’t stop in 10 minutes.</p>
+      </details>
+    </div>
+
+    <!-- Burns -->
+    <div class="firstaid-card">
+      <img src="{{ url_for('static', filename='images/firstaid/burn.png') }}" alt="Burns" class="firstaid-icon">
+      <h3>Burns</h3>
+      <details>
+        <summary>Steps</summary>
+        <ol>
+          <li>Cool burn under running water for 20 minutes.</li>
+          <li>Do not apply ice, toothpaste, or butter.</li>
+          <li>Cover loosely with clean cloth or sterile gauze.</li>
+        </ol>
+        <p class="emergency">🚨 Call doctor if burn is deep, blistered, or > palm size.</p>
+      </details>
+    </div>
+
+    <!-- Choking -->
+    <div class="firstaid-card">
+      <img src="{{ url_for('static', filename='images/firstaid/choking.png') }}" alt="Choking" class="firstaid-icon">
+      <h3>Choking</h3>
+      <details>
+        <summary>Steps</summary>
+        <ol>
+          <li>Ask if they can speak/cough.</li>
+          <li>If not, stand behind & give 5 abdominal thrusts (Heimlich maneuver).</li>
+          <li>Alternate with 5 back blows until object clears.</li>
+        </ol>
+        <p class="emergency">🚨 Call emergency if victim becomes unconscious.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<style>
+  .firstaid-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+  .firstaid-card {
+    background: #182447;
+    color: white;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    text-align: center;
+  }
+  .firstaid-card h3 { margin: 10px 0; }
+  .firstaid-icon {
+    max-width: 80px;
+    margin-bottom: 10px;
+  }
+  details {
+    text-align: left;
+    margin-top: 10px;
+    background: #10172a;
+    padding: 8px;
+    border-radius: 8px;
+  }
+  details summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #3a62ff;
+  }
+  .emergency {
+    color: #ff4d4d;
+    font-weight: bold;
+    margin-top: 5px;
+  }
+</style>
+{% endblock %}
